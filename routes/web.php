@@ -19,6 +19,9 @@ Route::middleware(['auth', 'role:buyer'])->group(function () {
     
     // RUTE UNTUK MELIHAT RIWAYAT TRANSAKSI PEMBELI Pak
     Route::get('/buyer/transactions', [CheckoutController::class, 'transactionHistory'])->name('buyer.transactions');
+    
+    // INI YANG KITA TAMBAHKAN PAK: Gerbang pengiriman ulasan kalimat pembeli
+    Route::post('/buyer/review', [CheckoutController::class, 'storeReview'])->name('buyer.review.store');
 });
 
 // 2. RUTE KHUSUS PENJUAL (SELLER)
@@ -31,9 +34,9 @@ Route::middleware(['auth', 'role:seller'])->group(function () {
     Route::post('/seller/products', [ProductController::class, 'store'])->name('seller.products.store');
 });
 
-// 3. RUTE KHUSUS ADMIN
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+// 3. RUTE KHUSUS ADMIN (SUDAH DIPERBARUI MENGGUNAKAN PREFIX & NAMING SYSTEM PAK)
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 });
 
 // 4. RUTE AKSES UNTUK FITUR KERANJANG & CHECKOUT
@@ -49,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 });
 
-// Rute manajemen profil bawaan Laravel
+// Rute manajemen profil bawaan Laravel (SUDAH FIX NORMAL PAK)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

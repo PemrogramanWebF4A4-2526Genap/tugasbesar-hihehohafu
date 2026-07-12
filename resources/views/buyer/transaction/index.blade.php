@@ -7,6 +7,13 @@
 
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            
+            @if(session('success'))
+                <div class="mb-6 p-4 bg-green-100 text-green-800 rounded-xl font-bold text-sm border border-green-200 shadow-xs">
+                    🎉 {{ session('success') }}
+                </div>
+            @endif
+
             <h3 class="text-xl font-black text-gray-950 mb-6">🧾 Resi Pembelian Anda</h3>
 
             @if($transactions->isEmpty())
@@ -18,7 +25,7 @@
             @else
                 <div class="space-y-6">
                     @foreach($transactions as $tx)
-                        <div class="bg-white shadow-md rounded-2xl border-2 border-dashed border-gray-300 p-6 relative overflow-hidden">
+                        <div class="bg-white shadow-md rounded-2xl border-2 border-dashed border-gray-300 p-6 relative overflow-hidden mb-6">
                             
                             <div class="absolute top-0 left-0 right-0 h-1 bg-gray-200 block"></div>
                             
@@ -48,6 +55,37 @@
                                     <span class="text-base font-bold text-gray-900">Total Dibayar:</span>
                                     <span class="text-lg font-black text-green-600">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</span>
                                 </div>
+                            </div>
+
+                            <div class="border-t border-gray-200 pt-4 mt-4 mb-4">
+                                @php
+                                    $review = \App\Models\Review::find($tx->id);
+                                @endphp
+
+                                @if($review)
+                                    @php
+                                        // Mengambil isi teks ulasan dari kolom pertama yang bukan ID atau Timestamp pak
+                                        $reviewText = collect($review->getAttributes())->except(['id', 'created_at', 'updated_at', 'transaction_id', 'user_id', 'product_id'])->first();
+                                    @endphp
+                                    @if($reviewText)
+                                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm">
+                                            <span class="font-bold text-blue-800 block">💬 Ulasan Kalimat Anda:</span>
+                                            <p class="text-gray-700 italic mt-0.5">"{{ $reviewText }}"</p>
+                                        </div>
+                                    @endif
+                                @else
+                                    <form method="POST" action="{{ route('buyer.review.store') }}" class="space-y-2">
+                                        @csrf
+                                        <input type="hidden" name="transaction_id" value="{{ $tx->id }}">
+                                        <label class="text-xs font-bold text-gray-700 uppercase tracking-wider block">✍ Berikan Ulasan Pembelian (Kalimat):</label>
+                                        <div class="flex gap-2">
+                                            <input type="text" name="comment" placeholder="Ketik review di sini pak (contoh: Mantap barangnya cepat sampai)..." class="w-full text-sm border border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl px-4 py-2 text-gray-900 bg-white" required>
+                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-black px-4 rounded-xl transition cursor-pointer shrink-0">
+                                                Kirim Ulasan
+                                            </button>
+                                        </div>
+                                    </form>
+                                @endif
                             </div>
 
                             <div class="flex justify-between items-center text-xs text-gray-400 italic">

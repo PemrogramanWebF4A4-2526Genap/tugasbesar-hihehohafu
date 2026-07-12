@@ -9,22 +9,36 @@
 <body class="bg-gray-50 text-gray-900">
 
     <nav class="bg-white shadow-sm p-4 sticky top-0 z-50 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="/" class="text-2xl font-black text-green-600 tracking-tight">Toko<span class="text-orange-500">Kita</span></a>
+        <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
+            <a href="/" class="text-2xl font-black text-green-600 tracking-tight shrink-0">Toko<span class="text-orange-500">Kita</span></a>
             
-            <div class="flex items-center gap-4">
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="text-gray-700 hover:text-green-600 font-semibold text-sm bg-gray-100 py-2 px-4 rounded-lg transition">
-                        Ke Dashboard Saya
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="text-green-600 hover:text-green-700 font-bold text-sm border border-green-600 py-2 px-4 rounded-lg transition">
-                        Masuk
-                    </a>
-                    <a href="{{ route('register') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition shadow-sm">
-                        Daftar
-                    </a>
-                @endauth
+            <div class="flex items-center gap-4 flex-1 justify-end">
+                <form action="{{ route('home') }}" method="GET" class="flex items-center gap-2 w-full max-w-sm">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari barang jualan pak..." class="w-full text-xs px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-900">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition cursor-pointer shrink-0">
+                        Cari
+                    </button>
+                    @if(request('search'))
+                        <a href="{{ route('home') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1.5 px-3 rounded-lg text-xs transition text-center shrink-0">
+                            Reset
+                        </a>
+                    @endif
+                </form>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="text-gray-700 hover:text-green-600 font-semibold text-xs bg-gray-100 py-2 px-3 rounded-lg transition">
+                            Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="text-green-600 hover:text-green-700 font-bold text-xs border border-green-600 py-2 px-3 rounded-lg transition">
+                            Masuk
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-2 px-3 rounded-lg transition shadow-sm">
+                            Daftar
+                        </a>
+                    @endauth
+                </div>
             </div>
         </div>
     </nav>
@@ -83,8 +97,8 @@
                     </div>
                 </div>
             @empty
-                <div class="col-span-full text-center py-16 text-gray-400">
-                    Belum ada produk jualan yang tersedia di etalase toko.
+                <div class="col-span-full text-center py-16 text-gray-400 italic text-sm">
+                    Tidak ada produk jualan yang cocok dengan pencarian Anda pak.
                 </div>
             @endforelse
         </div>

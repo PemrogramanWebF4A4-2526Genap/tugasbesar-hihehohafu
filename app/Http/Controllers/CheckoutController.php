@@ -8,6 +8,8 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CheckoutController extends Controller
 {
@@ -41,12 +43,10 @@ class CheckoutController extends Controller
         $product = Product::findOrFail($request->product_id);
         
         // SISTEM DETEKSI OTOMATIS PEMILIK PRODUK Pak
-        // Mengecek apakah tabel products Anda menggunakan kolom 'user_id' atau 'seller_id'
         $sellerId = $product->user_id ?? $product->seller_id; 
 
         // VALIDASI: Cek apakah uang saldo dummy milik pembeli cukup atau kurang
         if ($buyer->balance < $request->total_price) {
-            // Kondisi JELEK: Saldo kurang, transaksi langsung digagalkan
             return redirect()->route('cart.index')->with('error', 'Transaksi Gagal! Saldo dummy Anda tidak mencukupi untuk melakukan pembayaran.');
         }
 
@@ -71,19 +71,45 @@ class CheckoutController extends Controller
         // 4. BERSIHKAN BARANG DARI KERANJANG BELANJA
         Cart::where('user_id', $buyer->id)->delete();
 
-        // Kembali ke dashboard dengan membawa pesan sukses berwujud banner hijau
         return redirect()->route('dashboard')->with('success', 'Pembayaran Berhasil! Saldo dummy Anda terpotong dan uang otomatis diteruskan ke dompet penjual.');
     }
 
     /**
      * Menampilkan daftar riwayat transaksi milik pembeli yang sedang login
-     * (DI SINI TEMPATNYA PAK)
      */
     public function transactionHistory()
     {
-        // Mengambil semua data transaksi milik user ini, diurutkan dari yang paling baru
         $transactions = Transaction::where('user_id', Auth::id())->latest()->get();
-
         return view('buyer.transaction.index', compact('transactions'));
     } 
-} // <-- Ini kurung kurawal penutup akhir dari file controller Anda
+
+    /**
+     * FUNGSI UTAS FINAL: Menyimpan ulasan kalimat pembeli ke kolom comment yang sudah dibuat pak
+     */
+    public function storeReview(Request $request)
+    {
+        $request->validate([
+            'transaction_id' => 'required',
+            'comment' => 'required|string|max:255',
+        ]);
+
+        // Menyimpan data ulasan per baris transaksi menggunakan query builder murni
+        $exists = DB::table('reviews')->where('id', $request->transaction_id)->exists();
+
+        if ($exists) {
+            DB::table('reviews')->where('id', $request->transaction_id)->update([
+                'comment' => $request->comment,
+                'updated_at' => now()
+            ]);
+        } else {
+            DB::table('reviews')->insert([
+                'id' => $request->transaction_id,
+                'comment' => $request->comment,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Ulasan kalimat Anda berhasil dikirim dan diteruskan ke Penjual!');
+    }
+}
