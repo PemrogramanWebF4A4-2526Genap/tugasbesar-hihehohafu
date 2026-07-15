@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Notifications\PesananMasuk; // SUDAH DI-IMPORT PAK
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -62,16 +63,22 @@ class CheckoutController extends Controller
         }
 
         // 3. CATAT NOTA RIWAYAT TRANSAKSI KE DATABASE
-        Transaction::create([
+        $transaction = Transaction::create([
             'user_id' => $buyer->id,
             'total_price' => $request->total_price,
             'status' => 'success',
         ]);
 
-        // 4. BERSIHKAN BARANG DARI KERANJANG BELANJA
+        // 4. KIRIM NOTIFIKASI KE ADMIN SEBAGAI PENJUAL GLOBAL PAK (DI SINI TEMPATNYA)
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            $admin->notify(new PesananMasuk($transaction));
+        }
+
+        // 5. BERSIHKAN BARANG DARI KERANJANG BELANJA
         Cart::where('user_id', $buyer->id)->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Pembayaran Berhasil! Saldo dummy Anda terpotong dan uang otomatis diteruskan ke dompet penjual.');
+        return redirect()->route('dashboard')->with('success', 'Pembayaran Berhasil! Saldo Anda terpotong dan uang otomatis diteruskan ke dompet penjual.');
     }
 
     /**

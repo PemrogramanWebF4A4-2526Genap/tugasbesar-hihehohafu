@@ -23,6 +23,29 @@
             
             <div x-show="activeTab === 'analitik'">
                 <h2 class="text-2xl font-black text-gray-900 mb-6">📊 Laporan & Ringkasan Analitik</h2>
+                
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs mb-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <h3 class="text-sm font-bold text-gray-700">🔔 Pemberitahuan Toko</h3>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="bg-red-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full animate-bounce">
+                                {{ auth()->user()->unreadNotifications->count() }} Baru
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="space-y-3 max-h-60 overflow-y-auto">
+                        @forelse(auth()->user()->unreadNotifications as $notif)
+                            <div class="p-3 bg-green-50 border-l-4 border-green-600 rounded-r-xl text-xs flex justify-between items-center">
+                                <span class="font-medium text-green-800">{{ $notif->data['message'] }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono">{{ $notif->created_at->diffForHumans() }}</span>
+                            </div>
+                        @empty
+                            <p class="text-xs text-gray-400 italic">Belum ada pesanan atau aktivitas pembayaran baru dari pembeli pak.</p>
+                        @endforelse
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
                         <p class="text-xs font-medium text-gray-500 uppercase">Total Pengguna</p>

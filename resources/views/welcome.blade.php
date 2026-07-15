@@ -10,7 +10,10 @@
 
     <nav class="bg-white shadow-sm p-4 sticky top-0 z-50 border-b border-gray-100">
         <div class="max-w-7xl mx-auto flex justify-between items-center gap-4">
-            <a href="/" class="text-2xl font-black text-green-600 tracking-tight shrink-0">Toko<span class="text-orange-500">Kita</span></a>
+            
+            <a href="/" class="shrink-0">
+                <img src="{{ asset('image/TOKITAs.png') }}" alt="Logo Tokita" class="h-16 w-auto object-contain">
+            </a>
             
             <div class="flex items-center gap-4 flex-1 justify-end">
                 <form action="{{ route('home') }}" method="GET" class="flex items-center gap-2 w-full max-w-sm">
